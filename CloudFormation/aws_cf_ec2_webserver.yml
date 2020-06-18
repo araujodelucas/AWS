@@ -1,17 +1,40 @@
 ---
 Resources:
+  EfsWebServer:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: false
+  #Recurso para criar Security Group
+  SecurityGroupWebServer:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Web access #Descrição de para que serve esse Security Group
+      GroupName: SG-WEB-SERVER-2 #Nome do Security Group
+  #Regras para permitir o tráfego de entrada no Security Group
+  InboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Permitindo requisicoes HTTP
+      GroupId: !GetAtt SecurityGroupWebServer.GroupId
+      CidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+  #Recurso para criar instância EC2
   WebServer1:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: us-east-1a
-      ImageId: ami-09d95fab7fff3776c
-      InstanceType: t2.micro
-      KeyName: aws_linux_server
+      AvailabilityZone: us-east-1a #N. Virgínia
+      ImageId: ami-09d95fab7fff3776c #Amazon Linux 2 AMI
+      InstanceType: t2.micro #Free tier
+      KeyName: aws_linux_server #Nome da chave para acesso SSH (essa chave já deve estar criada)
       SecurityGroups:
-        - default
-        - SG-WEB-SERVER
+        #- default
+        - !Ref SecurityGroupWebServer #Security Group que essa instância EC2 irá utilizar para o tráfego de entrada e saída
+      #Script para subir a máquina junto com o serviço do web server e a página web
       UserData:
         Fn::Base64:
+          #Fn::Sub:
           !Sub |
             #! /bin/bash -xe
             sudo yum update -y
@@ -21,19 +44,22 @@ Resources:
             sudo usermod -a -G apache ec2-user
             sudo chown -R ec2-user:apache /var/www/html
             cd /var/www/html
-            echo "<html><h1>Hello World</h1></html>" > index.html 
+            echo "<html><h1>Hello World</h1></html>" > index.html
+  #Recurso para criar instância EC2
   WebServer2:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: us-east-1b
-      ImageId: ami-09d95fab7fff3776c
-      InstanceType: t2.micro
-      KeyName: aws_linux_server
+      AvailabilityZone: us-east-1a #N. Virgínia
+      ImageId: ami-09d95fab7fff3776c #Amazon Linux 2 AMI
+      InstanceType: t2.micro #Free tier
+      KeyName: aws_linux_server #Nome da chave para acesso SSH (essa chave já deve estar criada)
       SecurityGroups:
-        - default
-        - SG-WEB-SERVER
+        #- default
+        - !Ref SecurityGroupWebServer #Security Group que essa instância EC2 irá utilizar para o tráfego de entrada e saída
+      #Script para subir a máquina junto com o serviço do web server e a página web
       UserData:
         Fn::Base64:
+          #Fn::Sub:
           !Sub |
             #! /bin/bash -xe
             sudo yum update -y
