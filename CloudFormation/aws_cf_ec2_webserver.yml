@@ -1,9 +1,9 @@
 ---
 Resources:
-  EfsWebServer:
-    Type: AWS::EFS::FileSystem
-    Properties:
-      Encrypted: false
+  #EfsWebServer:
+    #Type: AWS::EFS::FileSystem
+    #Properties:
+      #Encrypted: false
   #Recurso para criar Security Group
   SecurityGroupWebServer:
     Type: AWS::EC2::SecurityGroup
